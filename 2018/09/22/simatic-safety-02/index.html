@@ -1,0 +1,785 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head><meta name="generator" content="Hexo 3.9.0">
+  <meta charset="UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform">
+<meta http-equiv="Cache-Control" content="no-siteapp">
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css">
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css">
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css">
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Siemens,Fail-Safe,Safety Function,">
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title type="application/atom+xml">
+
+
+
+
+
+
+<meta name="description" content="编者按：SIMATIC Safety 概实现安全功能之评估元件也，此前篇所得之结论。观其“评估”生平，叹其可感知防护设备、执行机构之故障，保安全功能之清名，何为？实为本篇之要务矣  Passivation &amp;amp; Reintegration相比于过程，我们可能更在乎于结果。如果我们的故障安全系统检测到了故障的发生，他会用怎样的行为去阻止这个可恶的故障，使其不会造成安全功能的失效呢？当然，一切都">
+<meta name="keywords" content="Siemens,Fail-Safe,Safety Function">
+<meta property="og:type" content="article">
+<meta property="og:title" content="SIMATIC Safety -- 硬件篇">
+<meta property="og:url" content="http://yoursite.com/2018/09/22/simatic-safety-02/index.html">
+<meta property="og:site_name">
+<meta property="og:description" content="编者按：SIMATIC Safety 概实现安全功能之评估元件也，此前篇所得之结论。观其“评估”生平，叹其可感知防护设备、执行机构之故障，保安全功能之清名，何为？实为本篇之要务矣  Passivation &amp;amp; Reintegration相比于过程，我们可能更在乎于结果。如果我们的故障安全系统检测到了故障的发生，他会用怎样的行为去阻止这个可恶的故障，使其不会造成安全功能的失效呢？当然，一切都">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/images/0201.jpg">
+<meta property="og:updated_time" content="2018-09-22T15:05:26.871Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="SIMATIC Safety -- 硬件篇">
+<meta name="twitter:description" content="编者按：SIMATIC Safety 概实现安全功能之评估元件也，此前篇所得之结论。观其“评估”生平，叹其可感知防护设备、执行机构之故障，保安全功能之清名，何为？实为本篇之要务矣  Passivation &amp;amp; Reintegration相比于过程，我们可能更在乎于结果。如果我们的故障安全系统检测到了故障的发生，他会用怎样的行为去阻止这个可恶的故障，使其不会造成安全功能的失效呢？当然，一切都">
+<meta name="twitter:image" content="http://yoursite.com/images/0201.jpg">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/09/22/simatic-safety-02/">
+
+
+
+
+
+  <title>SIMATIC Safety -- 硬件篇 | </title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/" class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title"></span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">????N.M.B.</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br>
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br>
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br>
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/22/simatic-safety-02/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="JasonKar">
+      <meta itemprop="description" content>
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content>
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">SIMATIC Safety -- 硬件篇</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-22T10:48:02+08:00">
+                2018-09-22
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>编者按：SIMATIC Safety 概实现<strong>安全功能</strong>之评估元件也，此前篇所得之结论。观其“评估”生平，叹其可感知防护设备、执行机构之故障，保<strong>安全功能</strong>之清名，何为？实为本篇之要务矣</p>
+<hr>
+<h3 id="Passivation-amp-Reintegration"><a href="#Passivation-amp-Reintegration" class="headerlink" title="Passivation &amp; Reintegration"></a>Passivation &amp; Reintegration</h3><p>相比于过程，我们可能更在乎于结果。如果我们的故障安全系统检测到了故障的发生，他会用怎样的行为去阻止这个可恶的故障，使其不会造成<strong>安全功能</strong>的失效呢？当然，一切都是自然的，事物会朝着他本应有的方向去发展，故障也理应会被我们解决。伴随着他的离开，我们的故障安全系统又该如何重新投入到常规的工作之中呢？这便引出了江湖中颇为著名的一对伉俪：</p>
+<h4 id="钝化-passivation"><a href="#钝化-passivation" class="headerlink" title="钝化(passivation)"></a>钝化(passivation)</h4><ul>
+<li><strong>F-Inputs</strong> 安全输入模块提供替代值“0”作为通道的过程映像区值，即<em>不依赖于实际信号</em>；   </li>
+<li><strong>F-Outputs</strong> 安全输出模块的通道直接断电，即<em>不依赖于过程映像区</em> ；  </li>
+</ul>
+<p>何时会发生钝化？  </p>
+<ol>
+<li>从F-系统的启动阶段一直到CPU进入“运行”模式；  </li>
+<li>F-CPU 和 F-I/O 之间出现PROFIsafe “通讯故障”；  </li>
+<li><strong>F-I/O 或通道故障出现时(例如：短路、断线、交叉接线等 )；</strong> </li>
+<li>设置 F-I/O DB 内的参数 PASS_ON = 1  </li>
+</ol>
+<p>当情况1/2/4发生后，系统定会对整个F模块上的所有通道进行钝化，无法从模块参数上加以控制；<br>情况3（<em>我们此后的讨论重点*）发生后，即通道故障出现，是可以在F模块的参数中选择“单个通道钝化”或是“整个模板钝化”的。<br>此时，指示灯状态何如？<br>*F-CPU的ER红色闪烁，F-I/O的ER红色闪烁，故障通道的“F指示灯”红色常亮</em><br>当然，我们也一定会看到在系统自动生成的F-I/O DB 的输出参数 <strong>QBAD == 1</strong>，或者故障通道PII的<strong>Valuse Status == 0</strong>，提示我不行了</p>
+<p>现在我们了解到 <strong>钝化</strong> 即我们对于故障的典型响应，这个过程中的<strong>故障检测</strong> 和 <strong>钝化行为</strong> 都是由<em>评估系统</em> 中的F-I/O模块决定完成的。</p>
+<hr>
+<h4 id="解钝-reintegration"><a href="#解钝-reintegration" class="headerlink" title="解钝(reintegration)"></a>解钝(reintegration)</h4><ul>
+<li><strong>F-Inputs</strong> 安全输入模块上通道的过程映像区重新提供正确的过程值；  </li>
+<li><strong>F-Outputs</strong> 安全输出模块的通道输出状态重新由过程映像区的值决定；  </li>
+</ul>
+<p><em>换言之，F-I/O 她们已经不咳嗽了！</em>  </p>
+<p>对于由故障造成的钝化（包含 <em>通道故障</em> 以及 <em>通讯故障</em> ），解除钝化，让其重获自由，是有一个前提条件的，那就是<strong>故障的消除</strong>。当然，这个“消除”的状态，也只能由F-I/O模块按照不同的检测机制给到我们。故障消除后，指示灯的状态又如何呢？<br><em>F-CPU的ER红色闪烁，F-I/O的ER红色闪烁，通道“信号指示灯”及通道“F指示灯”红绿交替闪烁</em><br>当然，我们也一定会看到在系统自动生成的 F-I/O DB 的输出参数 <strong>ACK_REQ == 1</strong> ,提示可以解钝了<br>那如何来进行解钝呢？  </p>
+<ul>
+<li><strong>手动解钝</strong><br>默认F-I/O DB的输入参数 <strong>ACK_NEC == 1</strong>，在情况2、3故障消失后，必须通过用户手动确认的方式进行重新集成，两种手动确认的方法任性：<ol>
+<li>手动对F-CPU进行重启，解除钝化（一般现场不用）；  </li>
+<li>手动编程对F-I/O DB的输入参数 <strong>ACK_REI</strong> 进行操作，确认后解除钝化。只要 <strong>ACK_REI</strong> 有过0-&gt;1触发，模块解钝成功，该模块输出参数 <strong>ACK_REQ</strong>，<strong>QBAD</strong>, 自动恢复为0 。  </li>
+</ol>
+</li>
+<li><strong>自动解钝</strong><br>手动修改参数 <strong>ACK_NEC=0</strong>，在情况3故障消失后，模块会自动重新集成。<strong>（注：针对于非“F-CPU 与 F-I/O之间”的通讯错误）</strong><br>如果是情况2“通讯故障”，无论<strong>ACK_NEC</strong>是0或是1，一定要手动对<strong>ACK_REI</strong>进行0-&gt;1触发才能解钝。</li>
+</ul>
+<p>好，那所谓 <strong>解钝</strong> 即F-I/O 又重新可用了，安全功能又重新上岗了，在这个过程中的<strong>故障消除</strong> 和 <strong>解钝行为</strong> 也都是由F-I/O模块决定完成的。</p>
+<hr>
+<p>知道了结果，人们就要去追问原因。因为我们相信因果的必然性，我们相信会有着维系世界运转的严格逻辑网络之存在。当然，如果真实世界如我们这次讨论的机器世界和数学世界般完美就完美了。好吧，那就在这个完美的世界问出来吧，  </p>
+<p><strong>为什么 F-I/O 模块能够检测到故障的发生和故障的消除呢？</strong><br><em>（注：我们在这里的 <strong>故障</strong> 专指和安全功能相关的故障，即通道和电源的正负短路，通道之间的短路，以及通道组之间的差异发生，因为这些功能会直接造成 <strong>安全功能</strong> 的失效，危险事件的发生）</em></p>
+<p>要解释这个问题，就要分别从F-Input 和 Output模块的硬件结构和参数设定来入手了</p>
+<hr>
+<h3 id="F-Input-模块故障检测原理"><a href="#F-Input-模块故障检测原理" class="headerlink" title="F-Input 模块故障检测原理"></a>F-Input 模块故障检测原理</h3><p>我们下面的所有讨论，一个大的的设定是，由F-DI去帮着检测传感器侧的短路和差异故障。换言之，传感器自身是可以检测到这些故障的，尤其是在当今的电子技术条件下，很多防护设备的诊断覆盖率（Diagnostics Coverage）都可以到达99%了，什么错误人家自己都能发现。<br>所以，下面所讨论的供电方式、接线方法实际上都不是绝对的，只要传感器自身足够牛，就根本不需要或者根本就不可以让<strong>评估原件</strong>帮助他来发现错误。</p>
+<h4 id="1-短路故障检测"><a href="#1-短路故障检测" class="headerlink" title="1.短路故障检测"></a>1.短路故障检测</h4><p>F-DI模块上，每个通道都有一个与之配套的独立传感器供电电源VS， 向外提供24V直流电压。通道接线并组态时一定要选择内部VS作为其sensor supply，且该VS也一定要激活“Short circuit test”。<em>（都默认，别改就对了）</em>  </p>
+<ul>
+<li>如何检测通道与外部L+电源的短路呢？  </li>
+</ul>
+<p>原因很简单，就是这个“Short circuit test”的疗效。<br>当短路测试使能后，对应的传感器供电电压会被周期性地关断组态的时间 <em>（即“Time for short circuit test”==4.2ms）</em>；否则，它将提供恒定的DC 24V电压。<br>所以，如果F-DI模块在组态的关断时间内，在输入通道上没有检测到“0”信号，而是常1，则诊断中断就会产生，表明一定是有L+和该输入通道短路了。</p>
+<ul>
+<li>如何检测通道与其他通道之间，或者与其他通道的VS短路呢？  </li>
+</ul>
+<p>原因更简单，这个“Short circuit test”又立功了！<br>因为每个通道VS的关断周期是不一样的。所以每个输入通道，对专属于自己的sensor supply的安全期，那是记得倍儿清啊。所以，在我自己VS关断的时候，如果还能在通道上检测到“1”信号，那一定也是能分辨出来的。<br>他们能够知道是不是在我老公不在家的日子里，隔壁老王“悄悄送你来到我身边”……</p>
+<hr>
+<h4 id="2-差异故障检测"><a href="#2-差异故障检测" class="headerlink" title="2.差异故障检测"></a>2.差异故障检测</h4><p><strong>差异（discrepancy）</strong> 检测仅针对于1oo2的评估方式，用于分析 <em>“检测单一防护设备”</em> 的 <em>“双通道传感器”</em> 是否存在故障的风险。其评估原理如下：  </p>
+<ul>
+<li>只要该组内的两个通道值一致，就立即把这个值作为通道实际值，不会等你设置的差异时间结束；  </li>
+<li>只要出现了通道值的不一致：<br><strong>在差异时间内</strong>，通道的实际值等于你组态的0或者“last valid value”；在时间范围内重新一致后，则也是立即把这个值作为通道实际值；  </li>
+</ul>
+<p><strong>超过了差异时间后</strong>，如果仍然不一致，则报“差异故障”，通道被钝化掉。</p>
+<hr>
+<h3 id="F-Output-模块故障检测原理"><a href="#F-Output-模块故障检测原理" class="headerlink" title="F-Output 模块故障检测原理"></a>F-Output 模块故障检测原理</h3><p>为了<strong>安全功能</strong>的正确实施，F-DO模块也需要在内部进行自我的故障检测，那检测什么呢？当然也是检测颇为致命的“短路”故障，包括输出通道（P X、M x）与（L+、M-）之间是否短路；以及通道之间是否发生短路。目的就是一定要保证分断时，执行机构能够安全的断开。<br><em>（注：和安全功能无关的断线诊断，“Light Test”不在本次讨论范围之内）</em>  </p>
+<p>那F-DO通道上的短路情况是怎么被发现的呢？好，主角要登场了。接下来的所有讨论就都要紧密地团结在以 <strong>“回读电路”</strong> 为核心的党中央周围。<br>所以，短路故障的检测就是基于<strong>回读电路</strong> 通过 <strong>“Readback”回读值</strong>（包含P回读和M回读）来进行判断的。我们就是要坚定不移地贯彻一个党，一个领袖，一个主义，让<strong>回读值</strong>终身制，他是永远正确，永远伟大，永远万岁的！别拦着我，我还没编完呢。</p>
+<p><img src="/images/0201.jpg" alt></p>
+<p>诚然，<strong>回读值</strong>决定了一切，但是我们也得批评您，太不注意自己的身体了，太事必躬亲了，不行，我们得帮帮您，替您分忧，帮您解难。  </p>
+<p>如上图所示，在F-DO模块内部，每组输出通道的Px、Mx内各有一个分断开关，即<em>P-swithch &amp; M-switch<em>。在有些情况下，只有内部分断开关配合动作，才能使*</em>回读电路<strong>得到测试所用之</strong>回读值<strong>。<br>当然，这个</strong>测试动作** 无外乎就是分断开关的*关断</em> 或者 <em>接通</em>，而且这个配合<strong>回读</strong>的<strong>测试动作</strong> 一定是F-DO模块按照一定的周期自主进行的。好，掌声有请<strong>测试动作</strong>双飞入场，光明左使–<strong>关断测试</strong>，光明右使–<strong>接通测试</strong></p>
+<hr>
+<h4 id="1-Dark-Test-（关断测试）"><a href="#1-Dark-Test-（关断测试）" class="headerlink" title="1.Dark Test （关断测试）"></a>1.Dark Test （关断测试）</h4><p>这是所有F-DO模块必须要进行的<em>测试动作</em>。<br>在F-DO输出通道PIQ==1，外部执行器动作之时，通道内部P-switch、M-switch 均为接通状态。此时，由于通道正在被使用，所以一旦出现了前文所描述的短路情况发生，安全功能 一定会失效，造成执行机构无法分断。因此，对外围回路的短路检测必是箭在弦上，好，那到底是肿么检测的呢？ </p>
+<p>从原理上讲，此时一定要将P-switch和M-swithch关断，而后才能对外检测有没有短路电流进入回读电路形成回读值。但是，你一断switch，是不是就得害怕执行器真断了啊，所以这个必须是要交替断的，而且还得特别小心这个断的时间不能太长了，因为如果设的太长了，就真断了；当然太短了总是不好的，因为你可能又回读不到0。所以，要去试这个参数，找到一个另双方都满意的长度。  </p>
+<p>此刻，就会有求知欲特别旺盛的天妒英才（注意这要倒口）闪动着无鞋的大眼睛，非要问我到底是长好还是短好那？<br>首先，对于这个问题，我是非常乐于回答的，因为这是一个我从青少年时期就颇感兴趣并且常年累月孜孜不倦探寻的，并且梦想着为之付出一生的科学堡垒。这是一个我曾发誓一定要在有生之年采摘到的人类科学与文明金字塔顶的一朵瑰丽的后庭花。<br>那好吧，既然大家都感性趣，什么鸡毛故障安全，咱们就到此为止吧，今儿就今儿啦。接下来我就要以洋洋洒洒八万字的巨幅篇章，以走进科学的视角带大家进入到一个令人发指的生命不能承受之长和寒冬夜行短！<em>（此处略去八万字）</em>  …………</p>
+<p>综上，他们就为F-DO模块设计了一套检测机制，在通道接通时自动地关断F-DO模块内部P-switch、M-switch，进而通过<strong>回读值</strong>检测短路故障。这就是传说中的<strong>Dark Test（关断测试）</strong>  </p>
+<p>记住两点：<br>① 关断测试仅在输出通道等于1时进行，输出为0不做该测试；<br>② 关断测试时P-swtich、M-swtich交替关断。  </p>
+<p>测试原理：<br>P/M-swtich关断的时间由一个参数 <strong>max Readback time for “dark test”</strong> 决定（0.6~400ms）。<br>在测试过程中，P/M-switch始终为断开的，持续你所定义的<strong>max readback time</strong>。<br>只有在你设定的<strong>max readback time</strong>时间到达后，才会真正去做<strong>回读值</strong>检测，如果状态是1，则通道报错、钝化。<br><em>注：switch是要真正断所定义的max Readback time，这个就不是最大值了。</em></p>
+<hr>
+<h4 id="2-Switch-on-Test-（接通测试）"><a href="#2-Switch-on-Test-（接通测试）" class="headerlink" title="2.Switch on Test （接通测试）"></a>2.Switch on Test （接通测试）</h4><p>在F-DO输出通道PIQ==0，外部执行器尚无输出，通道内部P-swtich和M-swtich均为关断状态，<strong>回读值</strong>应该为0；如果出现了非0的值，则通道必有短路情况发生，应予报错、进行钝化。当然，由于通道尚未被征用，故此短路故障彼时相对是非决定性的，所以原来有些老的模块无此参数设置。   </p>
+<p>好，那为什么会在P/M-swtich为关断状态时检测到1的<strong>回读值</strong>呢？  </p>
+<h5 id="2-1-输出的Px与L-短路，或者Mx与M-短路"><a href="#2-1-输出的Px与L-短路，或者Mx与M-短路" class="headerlink" title="2.1 输出的Px与L+短路，或者Mx与M-短路"></a>2.1 输出的Px与L+短路，或者Mx与M-短路</h5><p>只要上述任意短路出现，根据回读电路图，我的大F-DO一定会第一时间通过这个牛逼的Readback把他找出来，第一时间把通道钝化掉。（F4真牛逼！）<br>根本就不需要P/M-swtich 分断开关做任何的配合动作，回读电路就可以通过<strong>回读值</strong>立即做出最终的裁决。所以后面所谓的测试周期根本就不用考虑，下面的 <strong>接通测试</strong> 亦不用考虑。  </p>
+<h5 id="2-2-Cross-Circuit-交叉电路"><a href="#2-2-Cross-Circuit-交叉电路" class="headerlink" title="2.2 Cross Circuit 交叉电路"></a>2.2 Cross Circuit 交叉电路</h5><p>指的是该通道输出的Px与其他通道输出的Py短路了；或者该通道输出的Mx与其他通道输出的My短路了。这挺高科技的啊，那这怎么查呢？<br>根据回读电路图，此时一定要将P-swtich和M-swtich接通，而后才能形成回路进行回读测试。<br>综上，他们也为F-DO模块设计了一个检测机制，在通道断开时自动地接通F-DO模块内部P-switch、M-switch，进而通过<strong>回读值</strong>检测短路故障。这就是传说中的<strong>Switch on Test （接通测试）</strong>  </p>
+<p>记住两点：<br>① 接通测试仅在输出通道等于0时进行，输出为1 不做该测试；<br>② 接通测试时P-swtich、M-swtich交替接通，于负载上不形成真正的回路。</p>
+<p>测试原理：</p>
+<p>如果在规定的 <strong>max Readback time for “switch on test”</strong> 内，<strong>回读值</strong>==0，则该通道报错、钝化；在规定的时间内，只要<strong>回读值</strong>==1，代表通道OK，就马上结束测试，不用等最长的时间完全用完。<em>（范围：0.6~5.0 ms）</em></p>
+<hr>
+<h4 id="3-Test-Period-测试周期"><a href="#3-Test-Period-测试周期" class="headerlink" title="3.Test Period 测试周期"></a>3.Test Period 测试周期</h4><p>好嘞，两坨屎，你俩这么得瑟啊，得瑟，早晚得把我俩（P/M-swtich）玩儿坏了。<br>不会，我们是有分寸的，内部开关的分和动作是不追随扫描周期，不追随安全运行组的，而是由F-DO模块自行决定的。<br>这个测试周期，有些模块是固定的，比如ET200S的F-DO，<strong>1000s</strong>执行一次;有些模块是可以调整的，比如ET200SP的F-DO，<strong>1000s、100s</strong>两者二选一。<br>不论固定还是可调周期，F-DO模块一旦检测到错误，钝化通道后，测试的周期都会被自动缩短到<strong>60s</strong>。保证安全模块能够频率更快地来进行测试，尽早地检测到短路故障的消失，恢复<strong>安全功能</strong>的正常工作。</p>
+<hr>
+<p>好啦，结束</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/Siemens/" rel="tag"><i class="fa fa-tag"></i> Siemens</a>
+          
+            <a href="/tags/Fail-Safe/" rel="tag"><i class="fa fa-tag"></i> Fail-Safe</a>
+          
+            <a href="/tags/Safety-Function/" rel="tag"><i class="fa fa-tag"></i> Safety Function</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/09/12/nmb-001/" rel="next" title="一">
+                <i class="fa fa-chevron-left"></i> 一
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/09/27/nmb-002/" rel="prev" title="二">
+                二 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">JasonKar</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Passivation-amp-Reintegration"><span class="nav-number">1.</span> <span class="nav-text">Passivation &amp; Reintegration</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#钝化-passivation"><span class="nav-number">1.1.</span> <span class="nav-text">钝化(passivation)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#解钝-reintegration"><span class="nav-number">1.2.</span> <span class="nav-text">解钝(reintegration)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#F-Input-模块故障检测原理"><span class="nav-number">2.</span> <span class="nav-text">F-Input 模块故障检测原理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-短路故障检测"><span class="nav-number">2.1.</span> <span class="nav-text">1.短路故障检测</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-差异故障检测"><span class="nav-number">2.2.</span> <span class="nav-text">2.差异故障检测</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#F-Output-模块故障检测原理"><span class="nav-number">3.</span> <span class="nav-text">F-Output 模块故障检测原理</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-Dark-Test-（关断测试）"><span class="nav-number">3.1.</span> <span class="nav-text">1.Dark Test （关断测试）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#2-Switch-on-Test-（接通测试）"><span class="nav-number">3.2.</span> <span class="nav-text">2.Switch on Test （接通测试）</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#2-1-输出的Px与L-短路，或者Mx与M-短路"><span class="nav-number">3.2.1.</span> <span class="nav-text">2.1 输出的Px与L+短路，或者Mx与M-短路</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#2-2-Cross-Circuit-交叉电路"><span class="nav-number">3.2.2.</span> <span class="nav-text">2.2 Cross Circuit 交叉电路</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-Test-Period-测试周期"><span class="nav-number">3.3.</span> <span class="nav-text">3.Test Period 测试周期</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2019</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">JasonKar</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Mist</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
