@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title><![CDATA[test_from_chromebook]]></title>
+    <url>%2F2019%2F07%2F27%2Ftest-from-chromebook%2F</url>
+    <content type="text"></content>
+  </entry>
+  <entry>
     <title><![CDATA[TIPS4TIA]]></title>
     <url>%2F2019%2F04%2F03%2FTIPS4TIA%2F</url>
     <content type="text"><![CDATA[All the screenshots based on TIA PORTAL STEP7 PRO Version V15 Upd3 and S7-1500 V2.X 1. Group editor on Task Barbeforeafter 2. Specify a central storage location for user-defined documents, then press &lt;Shift+F1&gt; to open user help 3. Reinitialization or Synchronization all the tags in DB 4. How to specify the block parameters displayed or hidden? 5. Set “Retain” attribute for newly created tags of iDB w/o optimized access 6. How to measure the totally cycle time of OB?With the “RT_INFO” instruction, via the “MODE” parameter you define which runtime you want to read out, then at the “INFO” parameter you generate statistics on the runtime of specific OB. MODE:= 1 (runtime of a specific OB) MODE:= 2 (maximum runtime of a specific OB) MODE:= 3 (minimum runtime of a specific OB) MODE:= 25 (current / last cycle time or duration of the last cycle) more information can be check out from id: 87668055 7. Arrays with variable length via formal parameter Array [*] 8. How to unlocked and configure the alarm text of “Program_alarms”? 9. Declares all internal parameters (included step &amp; transition) of a GRAPH block as retentive parameters 10. How to reduce or complete the parameters of call template in SCL?]]></content>
