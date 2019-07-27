@@ -4,11 +4,11 @@
 
 # Site
 title: 
-subtitle: 月光洒进N.M.B.
+subtitle:  月光洒进N.M.B.
 description:
 keywords:
 author: JasonKar
-language: zh-CN
+language: zh-Hans
 timezone: Asia/Shanghai
 
 # URL
@@ -73,7 +73,7 @@ pagination_dir: page
 # Extensions
 ## Plugins: https://hexo.io/plugins/
 ## Themes: https://hexo.io/themes/
-theme: maupassant
+theme: next
 
 # Deployment
 ## Docs: https://hexo.io/docs/deployment.html
@@ -81,3 +81,15 @@ deploy:
   type: git
   repository: https://github.com/Jiacen/jiacen.github.io.git
   branch: master
+
+#Extensions
+## Plugins: http://hexo.io/plugins/
+plugins: hexo-generate-feed
+
+
+#Search
+search:
+  path: search.xml
+  field: post
+  format: html
+  limit: 10000
